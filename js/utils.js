@@ -194,7 +194,7 @@ NexT.utils = {
     backToTop && backToTop.addEventListener('click', () => {
       window.anime({
         targets  : document.scrollingElement,
-        duration : 500,
+        duration : 200,
         easing   : 'linear',
         scrollTop: 0
       });
@@ -273,7 +273,7 @@ NexT.utils = {
         const offset = target.getBoundingClientRect().top + window.scrollY;
         window.anime({
           targets  : document.scrollingElement,
-          duration : 50,
+          duration : 200,
           easing   : 'linear',
           scrollTop: offset + 10
         });
