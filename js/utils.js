@@ -273,7 +273,7 @@ NexT.utils = {
         const offset = target.getBoundingClientRect().top + window.scrollY;
         window.anime({
           targets  : document.scrollingElement,
-          duration : 500,
+          duration : 50,
           easing   : 'linear',
           scrollTop: offset + 10
         });
