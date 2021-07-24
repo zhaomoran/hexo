@@ -63,7 +63,7 @@ NexT.motion.middleWares = {
       sequence.push({
         targets,
         complete: () => targets.classList.add('animated', 'fadeInDown'),
-        deltaT  : '-=20'
+        deltaT  : '-=2000'
       });
     });
 
