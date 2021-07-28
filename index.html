@@ -180,7 +180,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://zhaomoran.github.io/hexo/2021/07/27/hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://zhaomoran.github.io/hexo/2021/07/28/hello-world/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/hexo/images/avatar.jpeg">
@@ -193,7 +193,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          <a href="/hexo/2021/07/27/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
+          <a href="/hexo/2021/07/28/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
         </h2>
 
         <div class="post-meta-container">
@@ -204,7 +204,7 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2021-07-27 22:37:00" itemprop="dateCreated datePublished" datetime="2021-07-27T22:37:00+08:00">2021-07-27</time>
+      <time title="创建时间：2021-07-28 12:28:30" itemprop="dateCreated datePublished" datetime="2021-07-28T12:28:30+08:00">2021-07-28</time>
     </span>
 
   
@@ -220,7 +220,7 @@
           <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/hexo/2021/07/27/hello-world/#more" rel="contents">
+              <a class="btn" href="/hexo/2021/07/28/hello-world/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -282,7 +282,7 @@
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2021-07-27 22:37:00" itemprop="dateModified" datetime="2021-07-27T22:37:00+08:00">2021-07-27</time>
+        <time title="修改时间：2021-07-28 12:28:30" itemprop="dateModified" datetime="2021-07-28T12:28:30+08:00">2021-07-28</time>
       </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -307,65 +307,14 @@
           <blockquote>
 <p>主要解决新建debezium-connector-mongodb作业时，未完成的多线程snapshot任务重启后无法重新进行snapshot，进而导致的数据丢失问题。主要涉及的技术有：多线程、JAVA8函数式接口、</p>
 </blockquote>
-<h2 id="问题发现"><a href="#问题发现" class="headerlink" title="问题发现"></a>问题发现</h2><p>新建debezium-connector-mongodb 作业（1.2.5.Final）时，<strong>由于kafka-connector distribute部署模式下会进行rebalance</strong>，导致<strong>task进行重启操作</strong>。发现重启后的<strong>未完成的snapshot任务未重新运行，导致snapshot阶段的数据丢失</strong>，<a target="_blank" rel="noopener" href="https://debezium.io/documentation/reference/1.2/connectors/mongodb.html#mongodb-performing-a-snapshot">官方文档</a>表述该过程应为</p>
-<p><code>This snapshot will continue until it has copied all collections that match the connector’s filters. If the connector is stopped before the tasks&#39; snapshots are completed, upon restart the connector begins the snapshot again.</code></p>
-<ul>
-<li><p>第一次启动，snapshot被stop且未完成（完成snapshot的表会打印日志<code>Finished snapshotting &#123;&#125; records for collection &#39;&#123;&#125;&#39;; total duration &#39;&#123;&#125;&#39;</code>）</p>
-<p><img src="https://raw.githubusercontent.com/zhaomoran/markdown/master/img/image-20201216174449409.png" alt="image-20201216174449409"></p>
-</li>
-<li><p>第二次启动，由于找到了offset（<code>Found existing offset for replica set </code>），snapshot未执行，直接进行了oplog的读取</p>
-<p><img src="https://raw.githubusercontent.com/zhaomoran/markdown/master/img/image-20201216200809736.png" alt="image-20201216200809736"></p>
-</li>
-</ul>
-<p>在使用<strong>单线程进行snapshot</strong>的connector在<strong>snapshot中断重启后会重新进行snapshot</strong></p>
-<ul>
-<li><p>第一次启动，snapshot被stop且未完成，此时任务会报<code>java.lang.InterruptedException: Interrupted while snapshotting</code>异常</p>
-<p><img src="https://raw.githubusercontent.com/zhaomoran/markdown/master/img/image-20201216175644749.png" alt="image-20201216175644749"></p>
-</li>
-<li><p>第二次启动，未找到了offset，重新进行snapshot</p>
-<p><img src="https://raw.githubusercontent.com/zhaomoran/markdown/master/img/image-20201216175901420.png" alt="image-20201216175901420"></p>
-<p><img src="https://raw.githubusercontent.com/zhaomoran/markdown/master/img/image-20201216175945043.png" alt="image-20201216175945043"></p>
-<p><img src="https://raw.githubusercontent.com/zhaomoran/markdown/master/img/image-20201216180024414.png" alt="image-20201216180024414"></p>
-</li>
-</ul>
-<h2 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h2><p>从debezium-connector-mongodb<a target="_blank" rel="noopener" href="https://debezium.io/documentation/reference/1.2/connectors/mongodb.html#mongodb-performing-a-snapshot">官方文档</a>可以得知<strong>是否进行snapshot在于offset是否被kafka connect存储，存储的offset是否可用</strong>，而通过debug可以发现不管是否完成，kafka connect中均存储了offset，<strong>但未完成的value中 initsync为true, 而多线程下未完成snapshot的情况下initsync消失(异常的地方)</strong></p>
-<ul>
-<li><p>snapshot进行时offset为</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">key：</span><br><span class="line">[<span class="string">&quot;mimimi_mongo_test_mongo_mrzhao_3479&quot;</span>, &#123;</span><br><span class="line">	<span class="attr">&quot;rs&quot;</span>: <span class="string">&quot;replSet30017&quot;</span>,</span><br><span class="line">	<span class="attr">&quot;server_id&quot;</span>: <span class="string">&quot;mimimi_mongo_test_mongo_mrzhao_3479&quot;</span></span><br><span class="line">&#125;]</span><br><span class="line">value：</span><br><span class="line">&#123;</span><br><span class="line">	<span class="attr">&quot;sec&quot;</span>: <span class="number">1607604049</span>,</span><br><span class="line">	<span class="attr">&quot;ord&quot;</span>: <span class="number">348</span>,</span><br><span class="line">	<span class="attr">&quot;initsync&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">	<span class="attr">&quot;h&quot;</span>: <span class="number">-1998581077279535871</span>,</span><br><span class="line">	<span class="attr">&quot;stxnid&quot;</span>: <span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>snapshot完成后offset为</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">key：</span><br><span class="line">[<span class="string">&quot;mimimi_mongo_test_mongo_mrzhao_3479&quot;</span>,&#123;</span><br><span class="line">	<span class="attr">&quot;rs&quot;</span>:<span class="string">&quot;replSet30017&quot;</span>,</span><br><span class="line">	<span class="attr">&quot;server_id&quot;</span>:<span class="string">&quot;mimimi_mongo_test_mongo_mrzhao_3479&quot;</span></span><br><span class="line">&#125;]</span><br><span class="line">value：</span><br><span class="line">&#123;</span><br><span class="line">	<span class="attr">&quot;sec&quot;</span>:<span class="number">1607604049</span>,</span><br><span class="line">	<span class="attr">&quot;ord&quot;</span>:<span class="number">348</span>,</span><br><span class="line">	<span class="attr">&quot;transaction_id&quot;</span>:<span class="literal">null</span>,</span><br><span class="line">	<span class="attr">&quot;h&quot;</span>:<span class="number">-1998581077279535871</span>,</span><br><span class="line">	<span class="attr">&quot;stxnid&quot;</span>:<span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<p>通过分析源码可以发现，单线程和多线程处理在被stop时，多线程会吞掉InterruptedException异常，继续剩余流程，而单线程会直接向上抛出InterruptedException异常，后续流程不在执行，详见<a target="_blank" rel="noopener" href="https://github.com/debezium/debezium/blob/v1.2.5.Final/debezium-connector-mongodb/src/main/java/io/debezium/connector/mongodb/MongoDbSnapshotChangeEventSource.java#L331">代码</a>。</p>
-<ul>
-<li><p>多线程</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">start---thread1---thread1_吞掉[吞掉_InterruptedException]---stopReplicaSetSnapshot;</span><br><span class="line">start---thread2---thread2_吞掉[吞掉_InterruptedException]---stopReplicaSetSnapshot;</span><br><span class="line">start---thread3---thread3_吞掉[吞掉_InterruptedException]---stopReplicaSetSnapshot;</span><br><span class="line">stopReplicaSetSnapshot---completeSnapshot</span><br></pre></td></tr></table></figure></li>
-<li><p>单线程</p>
-  <pre class="mermaid">
-graph LR
-start---thread---抛出_InterruptedException---不再执行stopReplicaSetSnapshot---不再执行completeSnapshot
-    
-</pre></li>
-</ul>
-<p>而<code>stopReplicasetSnapshot</code>是将<code>Replicaset</code>从<code>snapshotmap</code>中移除，此后再获取的数据<code>initsync</code>不在为<code>true</code>，见<a target="_blank" rel="noopener" href="https://github.com/debezium/debezium/blob/v1.2.5.Final/debezium-connector-mongodb/src/main/java/io/debezium/connector/mongodb/SourceInfo.java#L211">代码</a></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Get the Kafka Connect detail about the source &quot;offset&quot; for the named database, which describes the given position in the</span></span><br><span class="line"><span class="comment">  * database where we have last read. If the database has not yet been seen, this records the starting position</span></span><br><span class="line"><span class="comment">  * for that database. However, if there is a position for the database, the offset representation is returned.</span></span><br><span class="line"><span class="comment">  *</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@param</span> replicaSetName the name of the replica set name for which the new offset is to be obtained; may not be null</span></span><br><span class="line"><span class="comment">  * <span class="doctag">@return</span> a copy of the current offset for the database; never null</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"><span class="keyword">public</span> Map&lt;String, ?&gt; lastOffset(String replicaSetName) &#123;</span><br><span class="line">    Position existing = positionsByReplicaSetName.get(replicaSetName);</span><br><span class="line">    <span class="keyword">if</span> (existing == <span class="keyword">null</span>) &#123;</span><br><span class="line">        existing = INITIAL_POSITION;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 调用stopReplicasetSnapshot后，isInitialSyncOngoing为false，则后续的数据中不在存在INITIAL_SYNC</span></span><br><span class="line">    <span class="keyword">if</span> (isInitialSyncOngoing(replicaSetName)) &#123;</span><br><span class="line">        <span class="keyword">return</span> Collect.hashMapOf(TIMESTAMP, Integer.valueOf(existing.getTime()),</span><br><span class="line">                                 ORDER, Integer.valueOf(existing.getInc()),</span><br><span class="line">                                 OPERATION_ID, existing.getOperationId(),</span><br><span class="line">                                 SESSION_TXN_ID, existing.getSessionTxnId(),</span><br><span class="line">                                 INITIAL_SYNC, <span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    Map&lt;String, Object&gt; offset = Collect.hashMapOf(TIMESTAMP, Integer.valueOf(existing.getTime()),</span><br><span class="line">                                                   ORDER, Integer.valueOf(existing.getInc()),</span><br><span class="line">                                                   OPERATION_ID, existing.getOperationId(),</span><br><span class="line">                                                   SESSION_TXN_ID, existing.getSessionTxnId());</span><br><span class="line"></span><br><span class="line">    existing.getTxOrder().ifPresent(txOrder -&gt; offset.put(TX_ORD, txOrder));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> offset;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>completeSnapshot</code>是将最后一条数据进行修改（标识snapshot完成）写入到kafka，<a target="_blank" rel="noopener" href="https://github.com/debezium/debezium/blob/v1.2.5.Final/debezium-core/src/main/java/io/debezium/pipeline/EventDispatcher.java#L402">代码如下</a>：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">completeSnapshot</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (bufferedEvent != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// It is possible that the last snapshotted table was empty</span></span><br><span class="line">        <span class="comment">// this way we ensure that the last event is always marked as last</span></span><br><span class="line">        <span class="comment">// even if it originates form non-last table</span></span><br><span class="line">        <span class="keyword">final</span> DataChangeEvent event = bufferedEvent.get();</span><br><span class="line">        <span class="keyword">final</span> Struct envelope = (Struct) event.getRecord().value();</span><br><span class="line">        <span class="keyword">if</span> (envelope.schema().field(Envelope.FieldName.SOURCE) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">final</span> Struct source = envelope.getStruct(Envelope.FieldName.SOURCE);</span><br><span class="line">            <span class="keyword">final</span> SnapshotRecord snapshot = SnapshotRecord.fromSource(source);</span><br><span class="line">            <span class="keyword">if</span> (snapshot == SnapshotRecord.TRUE) &#123;</span><br><span class="line">                SnapshotRecord.LAST.toSource(source);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        queue.enqueue(event);</span><br><span class="line">        bufferedEvent = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>此处<code>bufferedEvent.get()</code>使用的是函数式接口Supplier的实现方式，<a target="_blank" rel="noopener" href="https://github.com/debezium/debezium/blob/v1.2.5.Final/debezium-core/src/main/java/io/debezium/pipeline/EventDispatcher.java#L389">代码如下</a>，此时才会去真实的生成最后一条数据，前面调用了<code>stopReplicasetSnapshot</code>，此时再获取offset中的数据不在存在<code>INITIAL_SYNC</code>，标识snapshot完成。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">bufferedEvent = () -&gt; &#123;</span><br><span class="line">    SourceRecord record = <span class="keyword">new</span> SourceRecord(</span><br><span class="line">        offsetContext.getPartition(),</span><br><span class="line">        offsetContext.getOffset(),</span><br><span class="line">        topicName, <span class="keyword">null</span>,</span><br><span class="line">        keySchema, key,</span><br><span class="line">        dataCollectionSchema.getEnvelopeSchema().schema(), value,</span><br><span class="line">        <span class="keyword">null</span>, headers);</span><br><span class="line">    <span class="keyword">return</span> changeEventCreator.createDataChangeEvent(record);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>总结问题发生原因如下，多线程下stop任务时，<strong>吞掉了<code>InterruptedException</code>导致继续执行了后续的<code>completeSnapshot</code>流程，后续流程中最后一条数据的<code>initsync</code>被移除，导致再次重启后认定snapshot已完成。</strong></p>
-<h2 id="问题复现"><a href="#问题复现" class="headerlink" title="问题复现"></a>问题复现</h2><ol>
-<li><p>创建一个数据量较大的，且拥有多个表的Mongo数据库，以免snapshot过快完成</p>
-</li>
-<li><p>创建一个多线程snapshot的mongo作业启动后稍待10s，重启task（非重启作业）</p>
-</li>
-<li><p>重启后的作业将不再进行snapshot，仅进行oplog读取</p>
-</li>
-</ol>
-<h2 id="问题修复"><a href="#问题修复" class="headerlink" title="问题修复"></a>问题修复</h2><p><strong>多线程发生<code>InterruptedException</code>时虽然吞掉了异常，但会将abort置为true，在所有的线程shutdown后，通过检测abort主动抛出<code>InterruptedException</code>，主动结束后续流程。</strong></p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/hexo/2021/05/21/2021-05-22-debezium-connector-mongodb%E4%BB%BB%E5%8A%A1%E9%87%8D%E5%90%AF%E5%90%8E%E6%97%A0%E6%B3%95%E9%87%8D%E6%96%B0snapshot/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
